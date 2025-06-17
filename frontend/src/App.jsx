@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Login from './components/Login';
 import Chat from './components/chat/Chat';
 import Footer from './components/Footer';
+import SideBar from './components/SideBar';
 
 function App() {
   const [message, setMessage] = useState('');
@@ -95,25 +96,32 @@ function App() {
 
   return (
     <div className="container-fluid py-4">
-      {isAuthenticated && (
-        <Header onSignOut={handleSignOut} userInfo={userInfo} />
-      )}
-      <div className="row justify-content-center">
-        <div className="col-12 col-md-8 col-lg-6">
-          {!isAuthenticated ? (
+      <Footer />
+      {!isAuthenticated ? (
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-8 col-lg-6">
             <Login onLogin={handleLogin} />
-          ) : (
-            <Chat
-              message={message}
-              setMessage={setMessage}
-              response={response}
-              isLoading={isLoading}
-              onSendMessage={handleSendMessage}
-            />
-          )}
+          </div>
         </div>
-      </div>
-      <Footer/>
+      ) : (
+        <>
+          <Header onSignOut={handleSignOut} userInfo={userInfo} />
+          <div className="row">
+            <div className="col-2">
+              <SideBar/>
+            </div>
+            <div className="col-8">
+              <Chat
+                message={message}
+                setMessage={setMessage}
+                response={response}
+                isLoading={isLoading}
+                onSendMessage={handleSendMessage}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -9,3 +9,7 @@ frontend/node_modules/
 # Environment / secrets
 *.env
 backend/credentials.json
+
+__pycache__/
+*.py[cod]
+*$py.class

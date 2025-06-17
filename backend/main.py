@@ -167,6 +167,35 @@ async def chat(request: ChatRequest, req: Request):
             credentials=credentials
         )
         response = agent.process_message(request.content)
+
+        # Save messages to chat.json
+        try:
+            chat_file_path = os.path.join(os.path.dirname(__file__), 'src', 'chat.json')
+            
+            # Read existing chat history or create new if doesn't exist
+            try:
+                with open(chat_file_path, 'r') as f:
+                    chat_data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                chat_data = {"messages": []}
+
+            # Add new messages
+            chat_data['messages'].append({
+                "sender": "You",
+                "content": request.content
+            })
+            chat_data['messages'].append({
+                "sender": "Bot",
+                "content": response
+            })
+
+            # Write updated chat history
+            with open(chat_file_path, 'w') as f:
+                json.dump(chat_data, f, indent=2)
+
+        except Exception as e:
+            print(f"Error saving chat history: {str(e)}")
+
         return {"response": response}
     except Exception as e:
         import traceback
@@ -174,3 +203,15 @@ async def chat(request: ChatRequest, req: Request):
         print("Full traceback:")
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/chat-history")
+async def get_chat_history():
+    """Get the chat history."""
+    try:
+        chat_file_path = os.path.join(os.path.dirname(__file__), 'src', 'chat.json')
+        with open(chat_file_path, 'r') as f:
+            chat_data = json.load(f)
+        return chat_data
+    except Exception as e:
+        print(f"Error reading chat history: {str(e)}")
+        return {"messages": []}
