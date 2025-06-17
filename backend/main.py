@@ -215,3 +215,27 @@ async def get_chat_history():
     except Exception as e:
         print(f"Error reading chat history: {str(e)}")
         return {"messages": []}
+
+@app.post("/reset-chat")
+async def reset_chat():
+    try:
+        # Get the path to chat.json - going up one directory from backend to project root
+        chat_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend/src/chat.json")
+        
+        # Create initial chat history with just the welcome message
+        initial_chat = {
+            "messages": [
+                {
+                    "sender": "Bot",
+                    "content": "Hello! I'm your AI assistant. How can I help you today?"
+                }
+            ]
+        }
+        
+        # Write the initial chat history to the file
+        with open(chat_file, 'w') as f:
+            json.dump(initial_chat, f, indent=2)
+            
+        return {"status": "success", "message": "Chat history reset successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

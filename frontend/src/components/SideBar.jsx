@@ -1,6 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import FaqModal from './FaqModal';
 
 const SideBar = () => {
+  const [showFaq, setShowFaq] = useState(false);
+  const handleNewChat = async () => {
+    try {
+      // Call backend to reset chat history
+      await fetch('http://localhost:8000/reset-chat', {
+        method: 'POST',
+      });
+      
+      // Reload the page to refresh the chat
+      window.location.reload();
+    } catch (error) {
+      console.error('Error resetting chat:', error);
+    }
+  };
+
   return (
     <>
       <button 
@@ -55,6 +71,7 @@ const SideBar = () => {
                         '--bs-accordion-active-bg': 'transparent',
                         '--bs-accordion-active-color': 'inherit'
                       }}
+                      onClick={handleNewChat}
                     >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" style={{ marginRight: '10px', marginTop: '3px' }}>
                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
@@ -145,10 +162,20 @@ const SideBar = () => {
                   <div id="helpCollapse" className="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                     <div className="accordion-body">
                       <ul className="list-group" style={{ border: 'none' }}>
-                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>FAQ</a>
-                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Contact Support</a>
-                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Documentation</a>
-                      </ul>
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowFaq(true);
+                        }}
+                        className="list-group-item list-group-item-action"
+                        style={{ border: 'none', fontSize: '1rem' }}
+                        >
+                        FAQ
+                        </a>
+                        <a href="mailto:ignaciosadurni@gmail.com" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Contact Support</a>
+                        <a href="https://github.com/isadurni/task-bot" target="_blank" rel="noopener noreferrer" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Documentation</a>
+                        </ul>
                     </div>
                   </div>
                 </div>
@@ -157,6 +184,7 @@ const SideBar = () => {
           </div>
         </div>
       </div>
+      <FaqModal show={showFaq} onClose={() => setShowFaq(false)} />
     </>
   );
 };

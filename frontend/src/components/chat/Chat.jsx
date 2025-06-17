@@ -5,6 +5,20 @@ const Chat = ({ onSendMessage }) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
 
+  const handleNewChat = async () => {
+    try {
+      // Call backend to reset chat history
+      await fetch('http://localhost:8000/reset-chat', {
+        method: 'POST',
+      });
+      
+      // Reload the page to refresh the chat
+      window.location.reload();
+    } catch (error) {
+      console.error('Error resetting chat:', error);
+    }
+  };
+
   useEffect(() => {
     // Fetch chat history from backend
     const fetchChatHistory = async () => {
@@ -29,7 +43,11 @@ const Chat = ({ onSendMessage }) => {
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
-    
+  
+    else if (message.trim() === "clear" || message.trim() === "reset") {
+      handleNewChat();
+    }
+  
     try {
       const res = await fetch('http://localhost:8000/chat', {
         method: 'POST',
@@ -37,15 +55,15 @@ const Chat = ({ onSendMessage }) => {
         credentials: 'include',
         body: JSON.stringify({ content: message }),
       });
-
+  
       if (res.status === 401) {
         console.error('Please login first');
         return;
       }
-
+  
       const data = await res.json();
       setMessage('');
-      
+  
       // Fetch updated chat history after sending message
       const historyResponse = await fetch('http://localhost:8000/chat-history');
       const historyData = await historyResponse.json();
@@ -54,6 +72,7 @@ const Chat = ({ onSendMessage }) => {
       console.error('Error sending message:', error);
     }
   };
+  
 
   return (
     <div className="card">
