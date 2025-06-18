@@ -167,10 +167,102 @@ async def chat(request: ChatRequest, req: Request):
             credentials=credentials
         )
         response = agent.process_message(request.content)
+
+        # Save messages to chat.json
+        try:
+            chat_file_path = os.path.join(os.path.dirname(__file__), 'src', 'chat.json')
+            
+            # Read existing chat history or create new if doesn't exist
+            try:
+                with open(chat_file_path, 'r') as f:
+                    chat_data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                chat_data = {"messages": []}
+
+            # Add new messages
+            chat_data['messages'].append({
+                "sender": "You",
+                "content": request.content
+            })
+            chat_data['messages'].append({
+                "sender": "Bot",
+                "content": response
+            })
+
+            # Write updated chat history
+            with open(chat_file_path, 'w') as f:
+                json.dump(chat_data, f, indent=2)
+
+        except Exception as e:
+            print(f"Error saving chat history: {str(e)}")
+
         return {"response": response}
     except Exception as e:
         import traceback
         print(f"Error in chat: {str(e)}")
         print("Full traceback:")
         print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/chat-history")
+async def get_chat_history():
+    """Get the chat history."""
+    try:
+        chat_file_path = os.path.join(os.path.dirname(__file__), 'src', 'chat.json')
+        with open(chat_file_path, 'r') as f:
+            chat_data = json.load(f)
+        return chat_data
+    except Exception as e:
+        print(f"Error reading chat history: {str(e)}")
+        return {"messages": []}
+
+@app.post("/reset-chat")
+async def reset_chat():
+    try:
+        # Get the path to chat.json - going up one directory from backend to project root
+        chat_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend/src/chat.json")
+        
+        # Create initial chat history with just the welcome message
+        initial_chat = {
+            "messages": [
+                {
+                    "sender": "Bot",
+                    "content": "Hello! I'm your AI assistant. How can I help you today?"
+                }
+            ]
+        }
+        
+        # Write the initial chat history to the file
+        with open(chat_file, 'w') as f:
+            json.dump(initial_chat, f, indent=2)
+            
+        return {"status": "success", "message": "Chat history reset successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/logout")
+async def logout(request: Request):
+    """Logout endpoint that revokes the Google OAuth token."""
+    try:
+        # Get the session
+        session = request.cookies.get("session")
+        if not session:
+            return {"message": "No active session"}
+
+        # Get the token from the session
+        session_data = json.loads(session)
+        token = session_data.get("token")
+        if not token:
+            return {"message": "No token found in session"}
+
+        # Revoke the token
+        success = auth_service.revoke_token(token)
+
+        # Clear the session and redirect to login
+        response = JSONResponse(content={"message": "Successfully logged out"})
+        response.delete_cookie(key="session", path="/")
+        
+        return response
+    except Exception as e:
+        print(f"Error in logout: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

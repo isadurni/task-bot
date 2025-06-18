@@ -7,6 +7,7 @@ import json
 from typing import Optional, Dict, Any
 from fastapi import HTTPException
 from googleapiclient.discovery import build
+import requests
 
 load_dotenv()
 
@@ -57,7 +58,6 @@ class GoogleAuthService:
             flow.fetch_token(code=code)
             return flow.credentials
         except Exception as e:
-            # If there's a scope mismatch, try with the new scopes
             if "Scope has changed" in str(e):
                 flow = Flow.from_client_config(
                     self.client_config,
@@ -87,4 +87,18 @@ class GoogleAuthService:
             }
         except Exception as e:
             print("Error in get_user_info:", str(e))  # Debug log
-            raise HTTPException(status_code=500, detail=f"Error fetching user info: {str(e)}") 
+            raise HTTPException(status_code=500, detail=f"Error fetching user info: {str(e)}")
+
+    def revoke_token(self, token: str) -> bool:
+        """Revoke the OAuth token."""
+        try:
+            # Revoke the token
+            requests.post(
+                'https://oauth2.googleapis.com/revoke',
+                params={'token': token},
+                headers={'content-type': 'application/x-www-form-urlencoded'}
+            )
+            return True
+        except Exception as e:
+            print(f"Error revoking token: {str(e)}")
+            return False 

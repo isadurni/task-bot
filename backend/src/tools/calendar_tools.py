@@ -6,13 +6,65 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
 import pytz
 import re
+from langchain.chat_models import ChatOpenAI
 
 class GoogleCalendarTool(BaseTool):
     name: str = "google_calendar"
-    description: str = "Tool for interacting with Google Calendar"
+    description: str = '''
+        Use this tool to manage the user's Google Calendar effectively. Invoke this tool whenever the user mentions any activity, event, meeting, or task they want to schedule, view, or delete. The tool is designed to handle natural language inputs related to calendar management, such as:
+
+        - Creating events with natural language like "schedule lunch with Sarah on Friday at 2pm," "play tennis tomorrow," or "meeting next Tuesday at 11am."
+        - Listing upcoming events when asked "what are my next events?" or "show me my calendar."
+        - Deleting events when provided with an event identifier or description, but only after confirming with the user.
+
+        Capabilities:
+
+        1. Add Events:  
+        - Parse natural language input to extract event title, date, time, and duration.  
+        - If any critical details (title, date, or time) are missing, prompt the user for clarification before scheduling.  
+        - Use default values carefully: assume 1-hour duration if unspecified, and default to tomorrow if no date is given.  
+        - Confirm all event details with the user before creating the event.
+
+        2. List Events:  
+        - Provide a list of the next 10 upcoming events from the current time.  
+        - Format event details clearly, showing date, start time, and title.  
+        - Offer to provide more details or additional events if requested.
+
+        3. Delete Events:  
+        - Require explicit event identification before deletion.  
+        - Always ask the user to confirm the deletion by repeating the event title and scheduled time.  
+        - Confirm after deletion that the event has been removed.
+
+        Inputs:  
+        - A single string containing the user's request, e.g., "add a call with John next Tuesday at 11am," "show me my upcoming events," or "delete meeting with Sarah on Friday."
+
+        Outputs:  
+        - A natural language confirmation of actions taken, such as successful event creation with a link, a list of upcoming events, or confirmation of deletion.  
+        - Requests for more information if the input lacks necessary details.
+
+        Notes:  
+        - This tool operates using the user's timezone (America/New_York).  
+        - It handles common date/time formats and weekday names naturally.  
+        - Always prioritize confirming details with the user to avoid incorrect scheduling or deletion.  
+        - Be proactive in asking for missing event details rather than making assumptions.
+
+        Example usage scenarios:  
+        - User: "Schedule a dentist appointment next Monday at 3pm."  
+        - Tool: Parses and confirms details before creating the event.  
+        - User: "What's on my calendar this week?"  
+        - Tool: Lists upcoming events.  
+        - User: "Delete my lunch with Mike on Thursday."  
+        - Tool: Finds matching event, asks for confirmation, then deletes it upon approval.
+
+        Use this tool carefully and thoughtfully to ensure the user's calendar remains accurate and up-to-date.
+        The agent should use the information returned by this tool to formulate its natural language response to the user.
+        Do NOT try to parse natural language or formulate user-facing responses within this tool. That is the agent's job.
+        This tool is purely for interacting with the Google Calendar API.
+        '''
     credentials: Optional[Credentials] = None
     service: Optional[Any] = None
     timezone: pytz.timezone = Field(default_factory=lambda: pytz.timezone('America/New_York'))
+    llm: ChatOpenAI = Field(default_factory=lambda: ChatOpenAI(temperature=0.7))
 
     def __init__(self, credentials: Credentials):
         super().__init__()
@@ -105,11 +157,41 @@ class GoogleCalendarTool(BaseTool):
         """Run the tool asynchronously."""
         return self._run(query)
 
+    def _clean_event_title(self, title: str) -> str:
+        """Clean up the event title to be more concise."""
+        # Remove common scheduling words and time references
+        title = title.lower()
+        remove_words = [
+            'schedule', 'add', 'create', 'set up', 'book',
+            'from', 'to', 'at', 'on', 'for',
+            'tomorrow', 'today', 'next', 'this', 'that',
+            'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+            'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun',
+            'am', 'pm', 'morning', 'afternoon', 'evening', 'night'
+        ]
+        
+        # Remove time patterns (e.g., "4pm", "4:00pm", "16:00")
+        title = re.sub(r'\d{1,2}(?::\d{2})?\s*(?:am|pm)?', '', title)
+        
+        # Remove the words
+        words = title.split()
+        cleaned_words = [word for word in words if word not in remove_words]
+        
+        # Join the remaining words and capitalize
+        cleaned_title = ' '.join(cleaned_words).strip()
+        if cleaned_title:
+            return cleaned_title.title()
+        return "New Event"
+
     def _add_event(self, event_details: dict) -> str:
         """Add a new event to the calendar."""
         try:
+            # Clean up the event title
+            original_title = event_details.get('summary', 'New Event')
+            cleaned_title = self._clean_event_title(original_title)
+            
             event = {
-                'summary': event_details.get('summary', 'New Event'),
+                'summary': cleaned_title,
                 'description': event_details.get('description', ''),
                 'start': {
                     'dateTime': event_details.get('start_time'),
@@ -122,7 +204,26 @@ class GoogleCalendarTool(BaseTool):
             }
             
             event = self.service.events().insert(calendarId='primary', body=event).execute()
-            return f"Event created: {event.get('htmlLink')}"
+            
+            # Parse the event details for the LLM
+            start_time = datetime.fromisoformat(event_details['start_time'].replace('Z', '+00:00'))
+            time_str = start_time.strftime('%I:%M %p').lstrip('0')
+            day_str = start_time.strftime('%A')
+            
+            # Create a prompt for the LLM to generate a natural response
+            prompt = f"""Generate a natural, conversational response confirming that an event has been scheduled.
+            Event details:
+            - Title: {cleaned_title}
+            - Time: {time_str}
+            - Day: {day_str}
+            
+            The response should be friendly and natural, like how a human assistant would confirm scheduling an event.
+            Keep it concise and clear. Do not include any technical details or links."""
+            
+            # Use the LLM to generate the response
+            response = self.llm.predict(prompt)
+            return response.strip()
+            
         except Exception as e:
             return f"Error creating event: {str(e)}"
     
@@ -142,12 +243,29 @@ class GoogleCalendarTool(BaseTool):
             if not events:
                 return 'No upcoming events found.'
             
-            event_list = []
+            # Format events for the LLM
+            formatted_events = []
             for event in events:
                 start = event['start'].get('dateTime', event['start'].get('date'))
-                event_list.append(f"{event['summary']} ({start})")
+                start_time = datetime.fromisoformat(start.replace('Z', '+00:00'))
+                time_str = start_time.strftime('%I:%M %p').lstrip('0')
+                day_str = start_time.strftime('%A')
+                formatted_events.append(f"- {event['summary']} on {day_str} at {time_str}")
             
-            return "\n".join(event_list)
+            events_text = "\n".join(formatted_events)
+            
+            # Create a prompt for the LLM to generate a natural response
+            prompt = f"""Generate a natural, conversational response listing upcoming events.
+            Here are the events:
+            {events_text}
+            
+            The response should be friendly and natural, like how a human assistant would tell someone about their upcoming schedule.
+            Keep it concise and clear. Do not include any technical details."""
+            
+            # Use the LLM to generate the response
+            response = self.llm.predict(prompt)
+            return response.strip()
+            
         except Exception as e:
             return f"Error listing events: {str(e)}"
     
@@ -158,7 +276,30 @@ class GoogleCalendarTool(BaseTool):
             if not event_id:
                 return "Error: event_id is required"
             
+            # Get event details before deleting
+            event = self.service.events().get(calendarId='primary', eventId=event_id).execute()
+            event_title = event.get('summary', 'the event')
+            start = event['start'].get('dateTime', event['start'].get('date'))
+            start_time = datetime.fromisoformat(start.replace('Z', '+00:00'))
+            time_str = start_time.strftime('%I:%M %p').lstrip('0')
+            day_str = start_time.strftime('%A')
+            
+            # Delete the event
             self.service.events().delete(calendarId='primary', eventId=event_id).execute()
-            return f"Event {event_id} deleted successfully"
+            
+            # Create a prompt for the LLM to generate a natural response
+            prompt = f"""Generate a natural, conversational response confirming that an event has been deleted.
+            Event details:
+            - Title: {event_title}
+            - Time: {time_str}
+            - Day: {day_str}
+            
+            The response should be friendly and natural, like how a human assistant would confirm deleting an event.
+            Keep it concise and clear. Do not include any technical details."""
+            
+            # Use the LLM to generate the response
+            response = self.llm.predict(prompt)
+            return response.strip()
+            
         except Exception as e:
             return f"Error deleting event: {str(e)}" 
