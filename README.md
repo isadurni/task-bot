@@ -58,7 +58,6 @@ Create a `.env` file in the backend directory with the following variables:
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 OPENAI_API_KEY=your_openai_api_key
-OPENWEATHER_API_KEY=your_openweather_api_key
 ```
 
 ## Installation 🚀
