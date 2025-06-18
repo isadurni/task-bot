@@ -1,6 +1,6 @@
 # Task Bot 🤖
 
-Task Bot is an intelligent AI assistant that helps you manage your calendar, schedule tasks, and get weather information through natural language conversations. It integrates with Google Calendar and provides a modern, user-friendly interface for seamless task management.
+Task Bot is an intelligent AI assistant that helps you manage your calendar and schedule tasks through natural language conversations. It integrates with Google Calendar and provides a modern, user-friendly interface for seamless task management.
 
 ## Features ✨
 
