@@ -115,4 +115,5 @@ The application will be available at:
 ## Contact 📧
 
 Ignacio Sadurni - ignaciosadurni@gmail.com
+
 Project Link: [https://github.com/isadurni/task-bot](https://github.com/isadurni/task-bot)
