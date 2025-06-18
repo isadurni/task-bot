@@ -3,12 +3,15 @@ import React from 'react';
 const Login = ({ onLogin }) => {
   return (
     <div className="card" style={{ 
-      marginTop: '250px',
+      marginTop: '20vh',
       width: '600px',
       height: '400px',
       marginLeft: 'auto',
       marginRight: 'auto',
-      borderRadius: '1rem'
+      borderRadius: '1rem',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
     }}>
       <div className="card-body text-center d-flex flex-column justify-content-between align-items-center">
         <h2 className="card-title mt-4 fw-bold">Welcome to Task Bot</h2>

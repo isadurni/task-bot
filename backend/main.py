@@ -239,3 +239,30 @@ async def reset_chat():
         return {"status": "success", "message": "Chat history reset successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/logout")
+async def logout(request: Request):
+    """Logout endpoint that revokes the Google OAuth token."""
+    try:
+        # Get the session
+        session = request.cookies.get("session")
+        if not session:
+            return {"message": "No active session"}
+
+        # Get the token from the session
+        session_data = json.loads(session)
+        token = session_data.get("token")
+        if not token:
+            return {"message": "No token found in session"}
+
+        # Revoke the token
+        success = auth_service.revoke_token(token)
+
+        # Clear the session and redirect to login
+        response = JSONResponse(content={"message": "Successfully logged out"})
+        response.delete_cookie(key="session", path="/")
+        
+        return response
+    except Exception as e:
+        print(f"Error in logout: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

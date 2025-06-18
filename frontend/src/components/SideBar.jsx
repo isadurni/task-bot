@@ -37,14 +37,17 @@ const SideBar = () => {
         id="offcanvasExample" 
         aria-labelledby="offcanvasExampleLabel"
         data-bs-backdrop="false"
+        data-bs-scroll="true"
         style={{
           marginTop: '65px',
-          height: 'calc(94.5vh - 65px)',
-          borderRight: '1px solid #dee2e6'
+          height: 'calc(94vh - 65px)',
+          borderRight: '1px solid #dee2e6',
+          maxWidth: '300px',
+          pointerEvents: 'auto'
         }}
       >
         <div className="offcanvas-header">
-          <h4 className="offcanvas-title" id="offcanvasExampleLabel" style={{ marginLeft: '20px' }}>Menu</h4>
+          <h5 className="offcanvas-title" id="offcanvasExampleLabel" style={{ marginLeft: '20px' }}>Menu</h5>
           <button 
             type="button" 
             className="btn-close" 
@@ -63,7 +66,7 @@ const SideBar = () => {
                       className="accordion-button collapsed" 
                       type="button" 
                       style={{ 
-                        fontSize: '1.2rem', 
+                        fontSize: '1rem', 
                         height: '50px',
                         '--bs-accordion-btn-icon': 'none',
                         '--bs-accordion-btn-focus-border-color': 'none',
@@ -73,16 +76,16 @@ const SideBar = () => {
                       }}
                       onClick={handleNewChat}
                     >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16" style={{ marginRight: '10px', marginTop: '3px' }}>
-                       <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                       <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                    </svg>
-                    New Chat
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16" style={{ marginRight: '10px', marginTop: '3px' }}>
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                        <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                      </svg>
+                      New Chat
                     </button>
                   </h2>
                 </div>
 
-                <div className="accordion-item" style={{ border: 'none' }}>
+                {/* <div className="accordion-item" style={{ border: 'none' }}>
                   <h2 className="accordion-header">
                     <button 
                       className="accordion-button collapsed" 
@@ -92,7 +95,7 @@ const SideBar = () => {
                       aria-expanded="false" 
                       aria-controls="settingsCollapse" 
                       style={{ 
-                        fontSize: '1.2rem', 
+                        fontSize: '1rem', 
                         height: '50px',
                         '--bs-accordion-btn-focus-border-color': 'none',
                         '--bs-accordion-btn-focus-box-shadow': 'none',
@@ -100,31 +103,30 @@ const SideBar = () => {
                         '--bs-accordion-active-color': 'inherit'
                       }}
                     >
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="16" 
-                      height="16" 
-                      fill="currentColor" 
-                      className="bi bi-gear" 
-                      viewBox="0 0 16 16" 
-                      style={{ marginRight: '10px', marginTop: '3px' }}
-                    >
-                      <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
-                      <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
-                    </svg>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="16" 
+                        height="16" 
+                        fill="currentColor" 
+                        className="bi bi-gear" 
+                        viewBox="0 0 16 16" 
+                        style={{ marginRight: '10px', marginTop: '3px' }}
+                      >
+                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
+                        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+                      </svg>
                       Settings
                     </button>
                   </h2>
                   <div id="settingsCollapse" className="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                     <div className="accordion-body">
                       <ul className="list-group" style={{ border: 'none' }}>
-                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Profile</a>
-                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Preferences</a>
-                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Notifications</a>
+                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '0.8rem' }}>Profile</a>
+                        <a href="#" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '0.8rem' }}>Language</a>
                       </ul>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="accordion-item" style={{ border: 'none' }}>
                   <h2 className="accordion-header">
@@ -136,7 +138,7 @@ const SideBar = () => {
                       aria-expanded="false" 
                       aria-controls="helpCollapse" 
                       style={{ 
-                        fontSize: '1.2rem', 
+                        fontSize: '1rem', 
                         height: '50px',
                         '--bs-accordion-btn-focus-border-color': 'none',
                         '--bs-accordion-btn-focus-box-shadow': 'none',
@@ -162,20 +164,20 @@ const SideBar = () => {
                   <div id="helpCollapse" className="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                     <div className="accordion-body">
                       <ul className="list-group" style={{ border: 'none' }}>
-                      <a
-                        href="#"
-                        onClick={(e) => {
+                        <a
+                          href="#"
+                          onClick={(e) => {
                             e.preventDefault();
                             setShowFaq(true);
-                        }}
-                        className="list-group-item list-group-item-action"
-                        style={{ border: 'none', fontSize: '1rem' }}
+                          }}
+                          className="list-group-item list-group-item-action"
+                          style={{ border: 'none', fontSize: '0.8rem' }}
                         >
-                        FAQ
+                          FAQ
                         </a>
-                        <a href="mailto:ignaciosadurni@gmail.com" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Contact Support</a>
-                        <a href="https://github.com/isadurni/task-bot" target="_blank" rel="noopener noreferrer" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '1rem' }}>Documentation</a>
-                        </ul>
+                        <a href="mailto:ignaciosadurni@gmail.com" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '0.8rem' }}>Contact Support</a>
+                        <a href="https://github.com/isadurni/task-bot" target="_blank" rel="noopener noreferrer" className="list-group-item list-group-item-action" style={{ border: 'none', fontSize: '0.8rem' }}>Documentation</a>
+                      </ul>
                     </div>
                   </div>
                 </div>

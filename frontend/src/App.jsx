@@ -61,10 +61,18 @@ function App() {
 
   const handleSignOut = async () => {
     try {
-      await fetch('http://localhost:8000/logout', {
+      const response = await fetch('http://localhost:8000/logout', {
+        method: 'POST',
         credentials: 'include',
       });
-      setIsAuthenticated(false);
+      
+      if (response.ok) {
+        setIsAuthenticated(false);
+        setUserInfo(null);
+        window.location.href = '/login';
+      } else {
+        console.error('Logout failed:', await response.text());
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }

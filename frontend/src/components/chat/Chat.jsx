@@ -4,6 +4,7 @@ import './chat.css';
 const Chat = ({ onSendMessage }) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNewChat = async () => {
     try {
@@ -44,10 +45,12 @@ const Chat = ({ onSendMessage }) => {
   const handleSendMessage = async () => {
     if (!message.trim()) return;
   
-    else if (message.trim() === "clear" || message.trim() === "reset") {
+    if (message.trim() === "clear" || message.trim() === "reset") {
       handleNewChat();
+      return;
     }
   
+    setIsLoading(true);
     try {
       const res = await fetch('http://localhost:8000/chat', {
         method: 'POST',
@@ -70,9 +73,10 @@ const Chat = ({ onSendMessage }) => {
       setChatHistory(historyData.messages);
     } catch (error) {
       console.error('Error sending message:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="card">
@@ -85,6 +89,18 @@ const Chat = ({ onSendMessage }) => {
               </div>
             </div>
           ))}
+          {isLoading && (
+            <div className="message-container">
+              <div className="bot-message">
+                <div className="d-flex align-items-center">
+                  <div className="spinner-border spinner-border-sm me-2" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <span>Thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <div className="input-group mb-3">
           <input
@@ -94,13 +110,28 @@ const Chat = ({ onSendMessage }) => {
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything..."
+            disabled={isLoading}
           />
           <button 
             className="btn btn-lg"
-            style={{ backgroundColor: '#123a59', borderColor: '#123a59', color: 'white' }}
+            style={{ 
+              backgroundColor: isLoading ? '#6c757d' : '#123a59', 
+              borderColor: isLoading ? '#6c757d' : '#123a59', 
+              color: 'white' 
+            }}
             onClick={handleSendMessage}
+            disabled={isLoading}
           >
-            Chat
+            {isLoading ? (
+              <div className="d-flex align-items-center">
+                <div className="spinner-border spinner-border-sm me-2" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <span>Sending...</span>
+              </div>
+            ) : (
+              'Chat'
+            )}
           </button>
         </div>
       </div>

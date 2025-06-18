@@ -1,8 +1,8 @@
 .card {
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
-  margin-top: 80px;
-  height: 80vh;
+  margin-top: 70px;
+  height: 78vh;
   display: flex;
   flex-direction: column;
 }
@@ -11,6 +11,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   padding: 1rem;
 }
 
@@ -33,6 +34,7 @@
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
   line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 .user-message {
@@ -45,13 +47,15 @@
 }
 
 .input-group {
-  margin-top: auto;
+  display: flex;
 }
 
 .form-control {
   border-radius: 0.5rem 0 0 0.5rem;
+  font-size: 1rem;
 }
 
 .btn {
   border-radius: 0 0.5rem 0.5rem 0;
+  font-size: 1rem;
 }
