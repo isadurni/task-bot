@@ -2,6 +2,9 @@
 
 Task Bot is an intelligent AI assistant that helps you manage your calendar and schedule tasks through natural language conversations. It integrates with Google Calendar and provides a modern, user-friendly interface for seamless task management.
 
+[**Click on the image to watch a video demo!**](https://youtu.be/aWEhcZcObjc?si=uKZ6SL6fycWw-CxO)
+[![Video Demo](screenshot.png)](https://youtu.be/aWEhcZcObjc?si=uKZ6SL6fycWw-CxO)
+
 ## Features ✨
 
 - **Natural Language Processing**: 
