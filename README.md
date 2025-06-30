@@ -33,7 +33,6 @@ Task Bot is an intelligent AI assistant that helps you manage your calendar and 
 - FastAPI (Python)
 - LangChain
 - Google Calendar API
-- OpenWeatherMap API
 - OpenAI API
 - Python-dotenv
 
