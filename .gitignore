@@ -4,7 +4,7 @@ backend/__pycache__/
 backend/*.pyc
 
 # Node
-frontend/node_modules/
+node_modules/
 
 # Environment / secrets
 *.env
